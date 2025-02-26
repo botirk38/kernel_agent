@@ -10,6 +10,8 @@ console = Console()
 
 AVAILABLE_MODELS = ["gpt-4o"]
 
+AVAILABLE_VENDORS = ["nvidia"]
+
 
 def display_hardware_analysis(hardware_specs: dict):
     table = Table(title="Hardware Analysis")
@@ -48,6 +50,7 @@ def cli():
 @cli.command()
 @click.argument("hardware_description", type=str)
 @click.option("--model", "-m", default="gpt-4o", help="LLM model to use")
+@click.option("--vendor", "-v", help="Vendor for which the GPU is from")
 @click.option("--output", "-o", type=click.Path(), help="Save results to file")
 @click.option(
     "--task",
@@ -55,13 +58,18 @@ def cli():
     type=str,
     help="The task your kernel program is trying to accomplish.",
 )
-def optimize(hardware_description: str, model: str, output: str, task: str):
+def optimize(hardware_description: str, model: str, output: str, task: str, vendor : str):
     """Optimize code for given hardware description"""
 
     if model not in AVAILABLE_MODELS:
         console.print(f"[bold red]Error:[/bold red] Model '{model}' not recognized.")
         console.print(f"Available models: {', '.join(AVAILABLE_MODELS)}")
         return
+    
+    if vendor not in AVAILABLE_VENDORS:
+        console.print(f"[bold red]Error:[/bold red] Model '{vendor}' not recognized.")
+        console.print(f"Available vendors: {', '.join(AVAILABLE_VENDORS)}")
+        
 
     with console.status("[bold green]Initializing agent..."):
         agent = HardwareOptimizationAgent(model_name=model)
@@ -71,7 +79,7 @@ def optimize(hardware_description: str, model: str, output: str, task: str):
     )
 
     with console.status("[bold green]Running optimization workflow..."):
-        result = agent.optimize(hardware_description, task)
+        result = agent.optimize(hardware_description, task, vendor)
 
     console.print("\n✨ Optimization complete!\n")
 
