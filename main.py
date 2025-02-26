@@ -4,7 +4,7 @@ from rich.console import Console  # type: ignore
 from rich.table import Table  # type: ignore
 from rich.syntax import Syntax  # type: ignore
 from rich.panel import Panel  # type: ignore
-from kernel_optimizer import HardwareOptimizationAgent  # type:ignore
+from agents.kernel_optimizer import HardwareOptimizationAgent  # type:ignore
 
 console = Console()
 
