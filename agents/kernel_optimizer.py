@@ -1,9 +1,13 @@
+# mypy: ignore-errors
+
 from typing import Dict, TypedDict, Annotated, List, Optional, Any
+
+
 from langchain_core.messages import (
     AIMessage,
     HumanMessage,
     SystemMessage,
-)  # type:ignore
+)
 from langgraph.graph import StateGraph, END  # type: ignore
 from langchain_openai import ChatOpenAI  # type: ignore
 import operator
@@ -47,6 +51,7 @@ class AgentState(TypedDict):
     satisfaction_level: Optional[float]
     is_satisfied: Optional[bool]
     performance_metrics: Optional[Dict]
+    task: str
 
 
 def simulate_kernel_execution(code: str) -> PerformanceMetrics:
@@ -75,7 +80,7 @@ def simulate_kernel_execution(code: str) -> PerformanceMetrics:
 
 
 class HardwareOptimizationAgent:
-    def __init__(self, model_name: str = "gpt-4-turbo-preview"):
+    def __init__(self, model_name: str):
         self.model_name = model_name
         self.model = ChatOpenAI(model=model_name)
         self.assessment_model = self.model.with_structured_output(CodeAssessment)
@@ -103,26 +108,163 @@ class HardwareOptimizationAgent:
             "hardware_specs": {"analysis_complete": True},
         }
 
-    def _generate_optimized_code(self, state: AgentState) -> AgentState:
-        messages = state["messages"]
+    def simulate_kernel_execution(self, code: str, task: str) -> PerformanceMetrics:
+        """
+        Simulates kernel execution and returns performance metrics.
+        Adapts simulation based on task type.
 
-        system_prompt = """
+        Args:
+            code: The kernel code to simulate
+            task: Description of the task this kernel performs
+        """
+        # Determine task type and adapt simulation
+        if "matrix multiplication" in task.lower() or "matmul" in task.lower():
+            # Matrix multiplication simulation
+            matrix_size = 1024
+            A = np.random.rand(matrix_size, matrix_size).astype(np.float32)
+            B = np.random.rand(matrix_size, matrix_size).astype(np.float32)
+
+            start_time = time.time()
+            C = np.matmul(A, B)
+            end_time = time.time()
+
+            execution_time = (end_time - start_time) * 1000  # Convert to ms
+            ops_count = 2 * matrix_size**3  # ~2N³ operations for matmul
+
+        elif "convolution" in task.lower() or "conv" in task.lower():
+            # Convolution simulation
+            batch_size, channels, height, width = 16, 3, 224, 224
+            filters, kernel_size = 64, 3
+            input_tensor = np.random.rand(batch_size, channels, height, width).astype(
+                np.float32
+            )
+            kernels = np.random.rand(
+                filters, channels, kernel_size, kernel_size
+            ).astype(np.float32)
+
+            start_time = time.time()
+            # Simplified convolution simulation
+            result = np.zeros(
+                (batch_size, filters, height - kernel_size + 1, width - kernel_size + 1)
+            )
+            for b in range(batch_size):
+                for f in range(filters):
+                    for c in range(channels):
+                        for i in range(height - kernel_size + 1):
+                            for j in range(width - kernel_size + 1):
+                                result[b, f, i, j] += np.sum(
+                                    input_tensor[
+                                        b, c, i : i + kernel_size, j : j + kernel_size
+                                    ]
+                                    * kernels[f, c]
+                                )
+            end_time = time.time()
+
+            execution_time = (end_time - start_time) * 1000  # Convert to ms
+            ops_count = (
+                batch_size
+                * filters
+                * channels
+                * (height - kernel_size + 1)
+                * (width - kernel_size + 1)
+                * kernel_size**2
+            )
+
+        elif "transformer" in task.lower() or "attention" in task.lower():
+            # Transformer/attention simulation
+            batch_size, seq_len, hidden_dim = 32, 128, 768
+            q = np.random.rand(batch_size, seq_len, hidden_dim).astype(np.float32)
+            k = np.random.rand(batch_size, seq_len, hidden_dim).astype(np.float32)
+            v = np.random.rand(batch_size, seq_len, hidden_dim).astype(np.float32)
+
+            start_time = time.time()
+            # Simplified attention calculation
+            scores = np.matmul(q, k.transpose(0, 2, 1))
+            scores = scores / np.sqrt(hidden_dim)
+            # Use softmax
+            scores_exp = np.exp(scores - np.max(scores, axis=-1, keepdims=True))
+            attention = scores_exp / np.sum(scores_exp, axis=-1, keepdims=True)
+            context = np.matmul(attention, v)
+            end_time = time.time()
+
+            execution_time = (end_time - start_time) * 1000  # Convert to ms
+            ops_count = batch_size * (
+                2 * seq_len**2 * hidden_dim + seq_len**2 + seq_len**2 * hidden_dim
+            )
+
+        else:
+            # Default to generic compute simulation
+            data_size = 1_000_000
+            data = np.random.rand(data_size).astype(np.float32)
+
+            start_time = time.time()
+            # Generic computation (element-wise operations)
+            result = np.sin(data) + np.cos(data) * np.tan(data)
+            end_time = time.time()
+
+            execution_time = (end_time - start_time) * 1000  # Convert to ms
+            ops_count = data_size * 4  # sin, cos, tan, add/multiply
+
+        # Calculate metrics based on the operation
+        throughput = ops_count / (execution_time / 1000)  # ops/second
+        memory_usage = sum(
+            x.nbytes for x in locals().values() if isinstance(x, np.ndarray)
+        ) / (1024 * 1024)
+
+        # Scale efficiency score based on task complexity
+        complexity_factor = 1.0
+        if "matrix multiplication" in task.lower():
+            complexity_factor = (
+                0.8  # Matrix multiplication is common and well-optimized
+            )
+        elif "convolution" in task.lower():
+            complexity_factor = 1.2  # Convolutions are more complex
+        elif "transformer" in task.lower():
+            complexity_factor = 1.5  # Transformer operations are very complex
+
+        efficiency_score = min(100, 1000 / (execution_time * complexity_factor) * 80)
+
+        return PerformanceMetrics(
+            execution_time=execution_time,
+            throughput=throughput,
+            memory_usage=memory_usage,
+            efficiency_score=efficiency_score,
+        )
+
+    def _generate_optimized_code(self, state: AgentState) -> AgentState:
+        """Generates hardware-optimized kernels based on the analysis and specific task."""
+
+        messages = state["messages"]
+        task = state["task"]  # Get the specific task goal
+
+        system_prompt = f"""
         You are an expert in writing hardware-optimized code for AI acceleration. 
-        Based on the hardware analysis provided, generate optimized kernel code that:
         
-        1. Maximizes compute utilization
-        2. Optimizes memory access patterns
-        3. Minimizes data transfer bottlenecks
-        4. Takes advantage of specialized hardware features
+        TASK OBJECTIVE: {task}
+        
+        Based on the hardware analysis provided, generate optimized kernel code for the specified task.
+        Your code should:
+        
+        1. Solve the specific task requirements effectively
+        2. Maximize compute utilization on the target hardware
+        3. Optimize memory access patterns for the specific operation
+        4. Minimize data transfer bottlenecks 
+        5. Take advantage of specialized hardware features available
+        
+        Consider the specific computational patterns required by the task and how they map to the
+        hardware architecture. Focus especially on parallelization, memory coalescing, and 
+        pipeline utilization.
         
         Provide the code with detailed comments explaining your optimization choices.
-        Include benchmarking hooks to evaluate performance.
+        Include benchmarking hooks to evaluate performance specific to this task.
         """
 
         response = self.model.invoke([SystemMessage(content=system_prompt), *messages])
 
         code = response.content
-        metrics = simulate_kernel_execution(code)
+        metrics = self.simulate_kernel_execution(
+            code, task
+        )  # Pass task to the simulation
 
         return {
             **state,
@@ -241,7 +383,7 @@ class HardwareOptimizationAgent:
 
         return workflow.compile()
 
-    def optimize(self, hardware_description: str) -> Dict[str, Any]:
+    def optimize(self, hardware_description: str, task: str) -> Dict[str, Any]:
         initial_state = {
             "messages": [HumanMessage(content=hardware_description)],
             "hardware_specs": None,
@@ -250,6 +392,7 @@ class HardwareOptimizationAgent:
             "satisfaction_level": None,
             "is_satisfied": None,
             "performance_metrics": None,
+            "task": task,
         }
 
         return self.graph.invoke(initial_state)

@@ -4,9 +4,11 @@ from rich.console import Console  # type: ignore
 from rich.table import Table  # type: ignore
 from rich.syntax import Syntax  # type: ignore
 from rich.panel import Panel  # type: ignore
-from kernel_agent.kernel_optimizer import HardwareOptimizationAgent  # type:ignore
+from kernel_optimizer import HardwareOptimizationAgent  # type:ignore
 
 console = Console()
+
+AVAILABLE_MODELS = ["gpt-4o"]
 
 
 def display_hardware_analysis(hardware_specs: dict):
@@ -45,11 +47,21 @@ def cli():
 
 @cli.command()
 @click.argument("hardware_description", type=str)
-@click.option("--model", "-m", default="gpt-4-turbo-preview", help="LLM model to use")
+@click.option("--model", "-m", default="gpt-4o", help="LLM model to use")
 @click.option("--output", "-o", type=click.Path(), help="Save results to file")
-@click.option("--verbose", "-v", is_flag=True, help="Show detailed progress")
-def optimize(hardware_description: str, model: str, output: str, verbose: bool):
+@click.option(
+    "--task",
+    "-t",
+    type=str,
+    help="The task your kernel program is trying to accomplish.",
+)
+def optimize(hardware_description: str, model: str, output: str, task: str):
     """Optimize code for given hardware description"""
+
+    if model not in AVAILABLE_MODELS:
+        console.print(f"[bold red]Error:[/bold red] Model '{model}' not recognized.")
+        console.print(f"Available models: {', '.join(AVAILABLE_MODELS)}")
+        return
 
     with console.status("[bold green]Initializing agent..."):
         agent = HardwareOptimizationAgent(model_name=model)
@@ -59,7 +71,7 @@ def optimize(hardware_description: str, model: str, output: str, verbose: bool):
     )
 
     with console.status("[bold green]Running optimization workflow..."):
-        result = agent.optimize(hardware_description)
+        result = agent.optimize(hardware_description, task)
 
     console.print("\n✨ Optimization complete!\n")
 
@@ -121,16 +133,14 @@ def analyze(input_file: str):
 @cli.command()
 def models():
     """List available LLM models"""
-    models = [
-        ("gpt-4-turbo-preview", "Latest GPT-4 model with best performance"),
-        ("gpt-3.5-turbo", "Faster, more economical option"),
-        ("gpt-4", "Standard GPT-4 model"),
-    ]
 
     table = Table(title="Available Models")
     table.add_column("Model", style="cyan")
     table.add_column("Description", style="green")
-
+    models = [
+        ("gpt-4o", "Latest GPT-4 model with best performance"),
+        ("gpt-o1", "Reasoning model from OpenAI"),
+    ]
     for model, desc in models:
         table.add_row(model, desc)
 

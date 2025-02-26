@@ -34,8 +34,8 @@
 To get started with the Kernel Agent project, follow these minimal setup instructions:
 1. Clone the repository: `git clone https://github.com/botirk38/kernel_agent.git`
 2. Navigate to the project directory: `cd kernel_agent`
-3. Install required libraries: `pip install -r requirements.txt`
-4. Run the `main.py` module: `python main.py`
+3. Install required libraries: `uv sync`
+4. Run the `main.py` module: `uv run main.py`
 
 ## Installation
 ### Prerequisites
@@ -48,12 +48,12 @@ To use the Kernel Agent project, ensure you have the following prerequisites:
 To install the Kernel Agent project, follow these steps:
 1. Clone the repository: `git clone https://github.com/botirk38/kernel_agent.git`
 2. Navigate to the project directory: `cd kernel_agent`
-3. Install required libraries: `pip install -r requirements.txt`
+3. Install required libraries: `uv sync`
 
 ## Usage Examples
 The Kernel Agent project provides various functions for kernel optimization, performance metrics display, and code analysis. To use the project, follow these examples:
-- Run the `main.py` module: `python main.py`
-- Use the `kernel_optimizer.py` module: `from kernel_optimizer import HardwareOptimizationAgent`
+- Run the `main.py` module: `uv run main.py`
+- Use the `kernel_optimizer.py` module: `from kernel_agent.kernel_optimizer import HardwareOptimizationAgent`
 
 Common use cases for the Kernel Agent project include:
 - Optimizing kernel execution for enhanced performance
