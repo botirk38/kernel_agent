@@ -5,7 +5,7 @@ from rich.table import Table  # type: ignore
 from rich.syntax import Syntax  # type: ignore
 from rich.panel import Panel  # type: ignore
 from agents.kernel_optimizer import HardwareOptimizationAgent  # type:ignore
-
+from factories.hardware_detector_factory import HardwareDetectorFactory
 console = Console()
 
 AVAILABLE_MODELS = ["gpt-4o"]
@@ -48,9 +48,7 @@ def cli():
 
 
 @cli.command()
-@click.argument("hardware_description", type=str)
 @click.option("--model", "-m", default="gpt-4o", help="LLM model to use")
-@click.option("--vendor", "-v", help="Vendor for which the GPU is from")
 @click.option("--output", "-o", type=click.Path(), help="Save results to file")
 @click.option(
     "--task",
@@ -58,17 +56,33 @@ def cli():
     type=str,
     help="The task your kernel program is trying to accomplish.",
 )
-def optimize(hardware_description: str, model: str, output: str, task: str, vendor : str):
+def optimize(model: str, output: str, task: str):
     """Optimize code for given hardware description"""
 
     if model not in AVAILABLE_MODELS:
         console.print(f"[bold red]Error:[/bold red] Model '{model}' not recognized.")
         console.print(f"Available models: {', '.join(AVAILABLE_MODELS)}")
         return
+
+      # Detect hardware
+    detector = HardwareDetectorFactory.create_detector()
+    if not detector:
+        console.print("[bold red]Error:[/bold red] No supported hardware detected")
+        return
+        
+    hardware_specs = detector.detect()
+    if not hardware_specs:
+        console.print("[bold red]Error:[/bold red] Failed to detect hardware specifications")
+        return
     
+    vendor = hardware_specs.vendor
+
     if vendor not in AVAILABLE_VENDORS:
         console.print(f"[bold red]Error:[/bold red] Model '{vendor}' not recognized.")
         console.print(f"Available vendors: {', '.join(AVAILABLE_VENDORS)}")
+
+
+    hardware_description = str(hardware_specs)
         
 
     with console.status("[bold green]Initializing agent..."):
