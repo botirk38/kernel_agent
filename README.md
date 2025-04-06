@@ -1,89 +1,63 @@
-# <p align="center">🚀 Kernel Agent</p>
-
-<p align="center">
-    <em>A Python-based kernel optimization agent for enhanced performance and hardware utilization.</em>
-</p>
-
-<p align="center">
- <img src="https://img.shields.io/github/license/botirk38/kernel_agent?style=default&logo=opensourceinitiative&logoColor=white&color=0080ff" alt="license">
- <img src="https://img.shields.io/github/last-commit/botirk38/kernel_agent?style=default&logo=git&logoColor=white&color=0080ff" alt="last-commit">
- <img src="https://img.shields.io/github/languages/top/botirk38/kernel_agent?style=default&color=0080ff" alt="repo-top-language">
- <img src="https://img.shields.io/github/languages/count/botirk38/kernel_agent?style=default&color=0080ff" alt="repo-language-count">
-</p>
-
-## Table of Contents
-- [Project Overview](#project-overview)
-- [Quick Start](#quick-start)
-- [Installation](#installation)
-- [Usage Examples](#usage-examples)
-- [API Docs](#api-docs)
-- [Build & Deployment](#build--deployment)
-- [Contribution Guide](#contribution-guide)
-
+# Kernel Agent README
 ## Project Overview
-### Introduction
-**Kernel Agent** is a Python-based project designed to optimize kernel execution and enhance hardware utilization. The project consists of two primary modules: `main.py` and `kernel_optimizer.py`. The `main.py` module contains functions for hardware optimization, performance metrics display, and code analysis, while the `kernel_optimizer.py` module focuses on kernel optimization using classes such as `CodeAssessment`, `PerformanceMetrics`, `AgentState`, and `HardwareOptimizationAgent`.
+The Kernel Agent is a Python-based tool designed to optimize kernel code for specific hardware configurations. It leverages advanced technologies such as hardware detection, kernel execution, and performance metric collection to provide optimized kernel code.
 
 ### Key Features
-- Kernel optimization for enhanced performance
-- Hardware utilization analysis and optimization
-- Performance metrics display
-- Code analysis for optimization opportunities
+- **Hardware Detection**: Automatically detects available hardware and selects the most suitable configuration for optimization.
+- **Kernel Execution**: Executes kernel code on the target hardware and collects performance metrics.
+- **Performance Optimization**: Analyzes performance metrics and optimizes kernel code for better performance.
 
-## Quick Start
-To get started with the Kernel Agent project, follow these minimal setup instructions:
-1. Clone the repository: `git clone https://github.com/botirk38/kernel_agent.git`
-2. Navigate to the project directory: `cd kernel_agent`
-3. Install required libraries: `uv sync`
-4. Run the `main.py` module: `uv run main.py`
-
-## Installation
+## Getting Started
 ### Prerequisites
-To use the Kernel Agent project, ensure you have the following prerequisites:
-- Python 3.x installed on your system
-- Required libraries: `click`, `json`, and `rich`
-- A compatible operating system (e.g., Linux, Windows)
+- Python 3.8 or later
+- Compatible hardware (e.g., NVIDIA GPU)
+- Required dependencies (listed in `requirements.txt`)
 
-### Setup Steps
-To install the Kernel Agent project, follow these steps:
+### Installation Steps
 1. Clone the repository: `git clone https://github.com/botirk38/kernel_agent.git`
-2. Navigate to the project directory: `cd kernel_agent`
-3. Install required libraries: `uv sync`
+2. Install dependencies: `pip install -r requirements.txt`
+3. Run the Kernel Agent: `python main.py`
 
-## Usage Examples
-The Kernel Agent project provides various functions for kernel optimization, performance metrics display, and code analysis. To use the project, follow these examples:
-- Run the `main.py` module: `uv run main.py`
-- Use the `kernel_optimizer.py` module: `from kernel_agent.kernel_optimizer import HardwareOptimizationAgent`
+## Usage
+### Basic Examples
+- Optimize kernel code for a given hardware description: `python main.py optimize --hardware-description <hardware_description>`
+- Analyze previously generated optimization results: `python main.py analyze --results-file <results_file>`
 
-Common use cases for the Kernel Agent project include:
-- Optimizing kernel execution for enhanced performance
-- Analyzing hardware utilization for optimization opportunities
-- Displaying performance metrics for kernel execution
+### Common Use Cases
+- Optimizing kernel code for a specific GPU model
+- Analyzing performance metrics for a given kernel code
+- Generating optimized kernel code for a particular hardware configuration
 
-## API Docs
-The Kernel Agent project uses the following API endpoints:
-- `main.py`: Contains functions for hardware optimization, performance metrics display, and code analysis
-- `kernel_optimizer.py`: Contains classes for kernel optimization, including `CodeAssessment`, `PerformanceMetrics`, `AgentState`, and `HardwareOptimizationAgent`
+## Architecture Overview
+The Kernel Agent consists of the following main components:
+- **Hardware Detector**: Responsible for detecting available hardware and selecting the most suitable configuration for optimization.
+- **Kernel Executor**: Executes kernel code on the target hardware and collects performance metrics.
+- **Hardware Optimization Agent**: Analyzes performance metrics and optimizes kernel code for better performance.
 
-## Build & Deployment
-To build and deploy the Kernel Agent project, follow these steps:
-- **Development Environment**:
-  1. Clone the repository: `git clone https://github.com/botirk38/kernel_agent.git`
-  2. Navigate to the project directory: `cd kernel_agent`
-  3. Install required libraries: `pip install -r requirements.txt`
-  4. Run the `main.py` module: `python main.py`
-- **Production Environment**:
-  1. Clone the repository: `git clone https://github.com/botirk38/kernel_agent.git`
-  2. Navigate to the project directory: `cd kernel_agent`
-  3. Install required libraries: `pip install -r requirements.txt`
-  4. Run the `main.py` module: `python main.py`
+The workflow of the Kernel Agent is as follows:
+1. The user provides a hardware description and kernel code to optimize.
+2. The Hardware Detector detects the available hardware and selects the most suitable configuration for optimization.
+3. The Kernel Executor executes the kernel code on the target hardware and collects performance metrics.
+4. The Hardware Optimization Agent analyzes the performance metrics and optimizes the kernel code for better performance.
 
-## Contribution Guide
-Contributions to the Kernel Agent project are welcome. To contribute, follow these steps:
+## Contributing Guidelines
+Contributions are welcome! To contribute, please:
 1. Fork the repository
 2. Create a new branch (`git checkout -b feature-branch`)
 3. Commit your changes (`git commit -m "Add feature"`)
 4. Push to the branch (`git push origin feature-branch`)
 5. Open a pull request
 
-The Kernel Agent project is licensed under the [MIT License](LICENSE).
+## License
+The Kernel Agent is licensed under the [MIT License](LICENSE).
+
+## Error Handling and Logging
+The Kernel Agent handles errors and exceptions that may occur during kernel execution, optimization, or other critical processes. The repository uses a combination of try-except blocks and logging mechanisms to handle and report issues.
+
+## Future Development and Contributions
+There are plans for future development, extensions, and improvements to the `kernel_agent` repository. Opportunities for contributors to get involved and help shape the direction of the project include:
+- Implementing support for additional hardware vendors
+- Developing new optimization algorithms and techniques
+- Improving the user interface and experience
+
+Contributors can get involved by forking the repository, creating a new branch, and submitting a pull request with their changes. The project maintainers will review and merge contributions that align with the project's goals and vision.
